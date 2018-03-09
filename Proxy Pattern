@@ -1,0 +1,69 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The normal code demo of Proxy Pattern 
+
+1、abstract subject  抽象主题类
+public interface Subjcet {
+    //define a method
+    public void request();
+}
+
+2、realSubject  真实主题类
+public class RealSubject implements Subject {
+    //implements
+    public void request(){
+      //business handling
+    }
+}
+
+3、the proxy 代理类
+public class proxy implements Subject {
+    //which class to be proxy
+    private Subject subject = null;
+    //the default proxy
+    public Proxy(){
+        this.subject = new Proxy();
+    }
+    
+    //constructor
+    public Proxy(Object...objecets) {
+    
+    }
+    
+    //implement the method defined in the interface
+    public void request(){
+        this.before();
+        this.subject.request();
+        this.after();
+    }
+    
+    //preHandle
+    private void request() {
+        //do something
+    }
+    
+    //after handle
+    private void after(){
+        //do something
+    }
+}
+
+
+
+
+
+
+
+
