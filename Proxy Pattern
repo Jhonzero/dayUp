@@ -131,3 +131,31 @@ public class Client{
         proxy.doSomething("finish");
     }
 }   
+
+-------improved-------
+The step 4、5 can be improved  by add a new subjectDynamicProxy class
+5、SubjcetDynamicProxy
+public class SubjectDynamicProxy extends DynamicProxy{
+    public static <T> T newProxyInstance(Subject subject) {
+        //get the classLoader
+        ClassLoader loader = subject.getClass().getClassLoader();
+        //get the array of interfaces
+        Class<?>[] classes = subject.getClass().getInterfaces();
+        //get the handler
+        InvocationHandler handler = new MyInvocationHandler(Subject);
+        return newProxyInstance(loader, classes, handler);
+    }
+}
+
+6、 Client
+public class Client {
+    public static void main(String[] args) {
+        //define a subjcet
+        Subject subject = new RealSubject();
+        //define the proxy
+        Subject proxy = SubjectDynamicProxy.newProxyInstance(subjcet);
+        //business handle
+        proxy.doSomething();
+    }
+}
+
