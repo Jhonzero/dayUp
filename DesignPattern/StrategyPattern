@@ -1,0 +1,72 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------normal code demo--------------
+1--抽象的策略角色
+public interface Strategy {
+    //策略模式的运算法则
+    public void operate();
+} 
+
+2--具体策略角色
+public class ConcreteStrategy1 implements Strategy {
+    public void operate() {
+        //具体的运算法则
+    }
+}
+
+public class ConcreteStrategy1 implements Strategy {
+    public void operate() {
+        //具体的运算法则
+    }
+}
+
+3--封装角色
+public class context() {
+    //抽象策略
+    private Strategy strategy = null;
+    //构造函数设置具体策略
+    public Context(Stratey _stratey) {
+        this.strategy = _stratey;
+    }  
+    
+    //封装后的策方法
+    public void doAnything() {
+        this.strategy.operate();
+    } 
+}
+
+4--高层模块
+public class Client {
+  public static void main(String[] args) {
+       //声明一个具体策略
+       Strategy strategy = new ConcreteStratey1();
+       //声明上下文对象
+       Context context = new Context(strategy);
+       //执行封装后的方法
+       context.doAnything();
+  }
+}
+
+
+
+
+
+
+
