@@ -1,0 +1,76 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------abstract construct-----------------
+1- subject (被观察者, the observered man)
+public abstract class Subject {
+    //define an array of observers
+    private Vector<Observer> obsVector = new Vector<Observer>();
+    //add a observer
+    public void addObserver(Observer o){
+        this.obsVector.add(o);
+    }
+    //delete a observer
+    publiv void delObserver(){
+        this.obsVector.remove(o);
+    }
+    //notify all observers
+    public void notifyObservers() {
+        for(Observer o: this.obdVector) {
+            o.update;
+        }   
+    }
+}
+
+2- concreteSubject (具体被观察者)
+public class ConcreteSubject extends Subject {
+    //concrete business
+    public void doSomething() {
+        //
+        super.notifyObservers();
+    } 
+}
+
+3- Observer (观察者)
+public Interface Observer {
+    //update
+    public void update();
+}
+
+4- concrteObserver (具体观察者)
+public class ConcreteObserver implements Observer {
+    system.out.println("receive the message, then handle it.");
+}
+
+5- Client
+public class Client {
+    //create a subject
+    ConcreteSubject subject = new ConcrteSubject();
+    //create a observer
+    Observer obs = new ConcreteObserver();
+    //subject observered add the observer
+    subject.addObserver(obs);
+    //start the activity
+    subject.doSomething();
+
+}
+
+
+
