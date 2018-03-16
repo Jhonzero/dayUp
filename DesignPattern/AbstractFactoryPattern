@@ -1,0 +1,285 @@
+
+
+
+
+一、定义（Abstract Factory Pattern）
+	Provide an interface for creating families of related or dependent objects without specifying their concrete classes
+	(为创建一组相关或相互依赖的对象提供一个接口，而且无需指定他们的具体类。)
+
+
+二、结构
+1、引入案例：女娲重新造人
+
+
+2、抽象工厂模式通用类图
+
+
+
+3、
+
+
+
+三、优缺点
+1、优点
+	1）封装性
+	-- 高层模块不关心产品的实现类，主需要关注接口，抽象（工厂类）。由工厂类来创建具体对象。
+	2）产品族内的约束为非公开状态。
+
+2、缺点 
+	1）产品族扩展非常困难。
+	-- 新增一个新的产品族的产品，会从底层到高层，都需要改动。
+【好好体会下，差异或者困难体现在何处？】
+
+
+四、关注点
+
+1、适用场景
+	1）一个对象族都有相同的约束。
+
+
+2、扩展
+	
+
+
+3、注意事项
+	抽象工厂模式的产品族扩展比较困难。是产品族扩展困难，而不是产品等级。
+	1）如果增加第三种人，只需要新增一个工厂和对应的产品类即可。
+	2）如果要增加产品族，会比较麻烦。（在 人类--（男人，女人）--（男黑，男白，女黑，女白）这个产品链中增加节点，会比较复杂）
+	3）横向扩展容易，纵向扩展困难。
+	
+
+4、对设计原则的遵守和破坏
+	-- 符合开闭原则
+
+
+
+五、代码code
+
+1、client
+package junz.designPattern.abstractFactoryPattern;
+
+public class NvWa {
+
+	//
+	public static void main(String[] args) {
+		//the first line, create male
+		HumanFactory maleHumanFactory = new MaleFactory();
+		//the second line, create female
+		HumanFactory femaleHumanFactory = new FemaleFactory();
+		//start to produce human
+		Human maleYellowHuman = maleHumanFactory.createYellowHuman();
+		Human femaleYellowHuman = femaleHumanFactory.createYellowHuman();
+		System.out.println("produce a yellow female.");
+		femaleYellowHuman.getColor();
+		femaleYellowHuman.talk();
+		femaleYellowHuman.getSex();
+		System.out.println("\nproduce a yellow male.");
+		maleYellowHuman.getColor();
+		maleYellowHuman.talk();
+		maleYellowHuman.getSex();
+		/**
+		 * keep producing the human later
+		 */
+	}
+}
+
+2- interface
+package junz.designPattern.abstractFactoryPattern;
+
+public interface Human {
+	//color of skin
+	public void getColor();
+	//say
+	public void talk();
+	//sex
+	public void getSex();
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public interface HumanFactory {
+
+	//create a yellowHuman
+	public Human createBlackHuman();
+	//create a yellowHuman
+	public Human createYellowHuman();
+	//create a yellowHuman
+	public Human createWhiteHuman();
+	
+}
+
+3-factory realization
+package junz.designPattern.abstractFactoryPattern;
+
+public class FemaleFactory implements HumanFactory{
+
+	@Override
+	public Human createBlackHuman() {
+		return new FemaleBlackHuman();
+	}
+
+	@Override
+	public Human createYellowHuman() {
+		return new FemaleYellowHuman();
+	}
+
+	@Override
+	public Human createWhiteHuman() {
+		return new FemaleWhiteHuman();
+	}
+
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public class MaleFactory implements HumanFactory{
+
+	@Override
+	public Human createBlackHuman() {
+		return new MaleBlackHuman();
+	}
+
+	@Override
+	public Human createYellowHuman() {
+		return new MaleYellowHuman();
+	}
+
+	@Override
+	public Human createWhiteHuman() {
+		return new MaleWhiteHuman();
+	}
+
+}
+
+4- human abstract
+package junz.designPattern.abstractFactoryPattern;
+
+public abstract class AbstractBlackHuman implements Human{
+
+	//color of skin
+	public void getColor() {
+		System.out.println("the color of skin is black!");
+	}
+	
+	//say
+	public void talk() {
+		System.out.println("blackHuamn words");
+	}
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public abstract class AbstractWhiteHuman implements Human{
+
+	//color of skin
+	public void getColor() {
+		System.out.println("the color of skin is white!");
+	}
+	
+	//say
+	public void talk() {
+		System.out.println("whiteHuamn words");
+	}
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public abstract class AbstractYellowHuman implements Human{
+
+	//color of skin
+	public void getColor() {
+		System.out.println("the color of skin is yellow!");
+	}
+	
+	//say
+	public void talk() {
+		System.out.println("yellowHuamn words");
+	}
+}
+
+4- concrete relization
+package junz.designPattern.abstractFactoryPattern;
+
+public class FemaleBlackHuman extends AbstractBlackHuman{
+
+	@Override
+	public void getSex() {
+		System.out.println("black female.");
+	}
+
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public class FemaleWhiteHuman extends AbstractWhiteHuman{
+
+	@Override
+	public void getSex() {
+		System.out.println("white female.");
+	}
+
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public class FemaleYellowHuman extends AbstractYellowHuman{
+
+	@Override
+	public void getSex() {
+		System.out.println("yellow female.");
+	}
+
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public class MaleBlackHuman extends AbstractBlackHuman{
+
+	@Override
+	public void getSex() {
+		System.out.println("black male.");
+	}
+
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public class MaleWhiteHuman extends AbstractWhiteHuman{
+
+	@Override
+	public void getSex() {
+		System.out.println("white male.");
+	}
+
+}
+
+package junz.designPattern.abstractFactoryPattern;
+
+public class MaleYellowHuman extends AbstractYellowHuman{
+
+	@Override
+	public void getSex() {
+		System.out.println("yellow male.");
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
