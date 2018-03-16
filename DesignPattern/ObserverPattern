@@ -4,7 +4,82 @@
 
 
 
+一、定义（Observer Pattern）
+	也叫作发布订阅模式（Publish/subscribe）
+	Define a one-to-many dependency betwween objects so that when one objects changes state, all its dependents are notified and updated automatically.
+	(定义对象间一种一对多的依赖关系，使得每当一个对象改变状态，则所有依赖于它的对象都会得到通知并被自动更新。)
 
+
+
+
+二、结构
+1、引入: 韩非子身边的卧底是谁派来的
+
+1）normal 
+
+
+2）Java 中的观察者模式--改进
+
+
+3）
+
+
+
+三、优缺点
+
+1、优点
+	1）观察者和被观察者之间是抽象耦合
+		抽象层级的耦合且已经实现定义，扩展容易。
+	2）建立一套触发机制
+		完美的实现了触发链形式。
+2、缺点
+	1）开发效率和运行效率问题。一个被观察者，多个观察者，开发和调试会比较复杂。且Java消息的通知默认是顺序执行，如果出现卡顿，会影响整体的执行效率。
+	--- 此时多数会考虑 异步的方式执行。
+	2）多级触发时的效率更需注意。
+
+
+四、关注点
+1、适用场景
+	1）关联行为场景
+	2）事件多级触发场景
+	3）跨系统的消息交换场景，如消息队列的处理机制。
+
+2、特性
+
+
+3、扩展
+1）Java 中的 观察者模式
+	Java 中提供了 java.util.Observable 实现类  和  java.util.Observer接口
+
+2）现实中真实的 观察者模式
+	实际项目中会对观察者模式进行改造或者改装，主要在以下方面
+	1-观察者和被观察者之间的消息沟通
+	--- 实际中一般的做法是 ，观察者中的 update 方法接受两个参数，一个是被观察者，一个是 DTO（Data Transfer Object, 数据传输对象），DTO 一般是一个纯 JavaBean由被观察者生成，由观察者消费。
+	2-观察者的响应方式
+	---一个是多线程技术（异步）， 一个是缓存技术
+	3-被观察者尽量自己做主
+	---在被观察者端进行判断是否要通知观察者，而不是在消费端判断是够消费信息。
+
+3）订阅发布模型
+	目前的消息分发技术，消息队列 MQ
+
+
+4、对于设计原则的支持和破坏
+
+
+5、注意事项
+1）广播链的问题
+	每个观察者都可以有双重身份，即使观察者，又是被观察者。
+	-- 如果有多个双重身份，逻辑会比较复杂，难于维护。
+	-- 一般一个观察者模式中最多出现一个兑现既是观察者有事被观察者，也就是消息最多转发一次（传递两次）。
+【注】
+	和责任链模式的最大区别：
+	观察者模式广播链的过程中消息是随机更改的，它是由相邻得两个节点协商的消息结构
+	责任链模式在消息传递过程中基本上保持消息不可变，如果要改变，也只是在原有的消息上进行修正。
+
+2）异步处理问题
+
+异步处理要考虑线程安全和队列的问题。
 
 
 
@@ -71,6 +146,277 @@ public class Client {
     subject.doSomething();
 
 }
+
+
+六、代码code
+（一）nomal
+1-client
+package junz.designPattern.observerPattern.normal;
+
+public class Client {
+
+	public static void main(String[] args) {
+		//define 3 observer
+		Observer LiSi = new LiSi();
+		Observer WangSi = new WangSi();
+		Observer LiuSi = new LiuSi();
+		
+		//define the hanfeizi
+		HanFeiZi hanfeizi = new HanFeiZi();
+		
+		//add the observer
+		hanfeizi.addObserver(LiSi);
+		hanfeizi.addObserver(WangSi);
+		hanfeizi.addObserver(LiuSi);
+		
+		//doSomething
+		hanfeizi.haveBreakfast();
+	}
+}
+
+2-interface
+package junz.designPattern.observerPattern.normal;
+
+public interface IHanFeiZi {
+	//breakfast
+	public void haveBreakfast();
+	//fun
+	public void haveFun();
+}
+
+package junz.designPattern.observerPattern.normal;
+
+public interface Observable {
+	//add a observer
+	public void addObserver(Observer observer);
+	//ddelete a observer
+	public void delObserver(Observer observer);
+	//notify the observers
+	public void notifyObservers(String context);
+}
+
+
+3- inteface relization
+package junz.designPattern.observerPattern.normal;
+
+import java.util.ArrayList;
+
+public class HanFeiZi implements Observable, IHanFeiZi{
+	//define a flexible array
+	private ArrayList<Observer> observerList = new ArrayList<Observer>();
+	
+	//add the observer
+	public void addObserver(Observer observer) {
+		this.observerList.add(observer);
+	}
+	
+	//delete the observer
+	public void delObserver(Observer observer) {
+		this.observerList.remove(observer);
+	}
+	
+	//notify all the observers
+	public void notifyObservers(String context) {
+		for(Observer observer: observerList) {
+			observer.update(context);
+		}
+	}
+	
+	//breakfast
+	public void haveBreakfast() {
+		System.out.println("HanFeiZi, starts to have breakfast.");
+		//nofity observer
+		this.notifyObservers("HanFeiZi is having breakfast.");
+	}
+	
+	//haveFun
+	public void haveFun() {
+		System.out.println("HanFeiZi, starts to have fun.");
+		//nofity observer
+		this.notifyObservers("HanFeiZi is having fun.");
+	}
+}
+
+4-oberver interface
+package junz.designPattern.observerPattern.normal;
+
+public interface Observer {
+	//update the info
+	public void update(String context);
+}
+
+5-observer relization
+package junz.designPattern.observerPattern.normal;
+
+public class LiSi implements Observer{
+
+	//
+	public void update(String str) {
+		System.out.println("Lisi report.");
+		this.rreportToQSH(str);
+		System.out.println("over.");
+	}
+	
+	public void rreportToQSH(String str) {
+		System.out.println("Boss, " + str);
+	}
+}
+
+package junz.designPattern.observerPattern.normal;
+
+public class WangSi implements Observer{
+
+	//
+	public void update(String str) {
+		System.out.println("Wangsi report.");
+		this.rreportToQSH(str);
+		System.out.println("over.");
+	}
+	
+	public void rreportToQSH(String str) {
+		System.out.println("Boss, " + str);
+	}
+}
+
+package junz.designPattern.observerPattern.normal;
+
+public class LiuSi implements Observer{
+
+	//
+	public void update(String str) {
+		System.out.println("Liusi report.");
+		this.rreportToQSH(str);
+		System.out.println("over.");
+	}
+	
+	public void rreportToQSH(String str) {
+		System.out.println("Boss, " + str);
+	}
+}
+
+(二)upgrade
+1、client
+package junz.designPattern.observerPattern.upgrade;
+
+import java.util.Observable;
+
+public class Client {
+
+	public static void main(String[] args) {
+		//define 3 observer
+		LiSi LiSi = new LiSi();
+		WangSi WangSi = new WangSi();
+		LiuSi LiuSi = new LiuSi();
+		
+		//define the hanfeizi
+		HanFeiZi hanfeizi = new HanFeiZi();
+		
+		//add the observer
+		hanfeizi.addObserver(LiSi);
+		hanfeizi.addObserver(WangSi);
+		hanfeizi.addObserver(LiuSi);
+		
+		//doSomething
+		hanfeizi.haveBreakfast();
+	}
+}
+
+2-interface
+package junz.designPattern.observerPattern.upgrade;
+
+public interface IHanFeiZi {
+	//breakfast
+	public void haveBreakfast();
+	//fun
+	public void haveFun();
+}
+
+3- interface relization
+package junz.designPattern.observerPattern.upgrade;
+
+import java.util.ArrayList;
+import java.util.Observable;
+
+public class HanFeiZi extends Observable implements IHanFeiZi{
+	
+	//breakfast
+	public void haveBreakfast() {
+		System.out.println("HanFeiZi, starts to have breakfast.");
+		//nofity observer
+		super.setChanged();
+		super.notifyObservers("HanFeiZi is having breakfast.");
+	}
+	
+	//haveFun
+	public void haveFun() {
+		System.out.println("HanFeiZi, starts to have fun.");
+		//nofity observer
+		super.setChanged();
+		super.notifyObservers("HanFeiZi is having fun.");
+	}
+}
+4-observer
+package junz.designPattern.observerPattern.upgrade;
+
+import java.util.Observable;
+import java.util.Observer;
+
+public class LiSi implements Observer{
+
+	//
+	@Override
+	public void update(Observable observable, Object obj) {
+		System.out.println("Lisi report.");
+		this.rreportToQSH(obj.toString());
+		System.out.println("over.");
+	}
+	
+	public void rreportToQSH(String str) {
+		System.out.println("Boss, " + str);
+	}
+
+}
+
+package junz.designPattern.observerPattern.upgrade;
+
+import java.util.Observable;
+import java.util.Observer;
+
+public class LiuSi implements Observer{
+
+	//
+	@Override
+	public void update(Observable observable, Object obj) {
+		System.out.println("Liusi report.");
+		this.rreportToQSH(obj.toString());
+		System.out.println("over.");
+	}
+	
+	public void rreportToQSH(String str) {
+		System.out.println("Boss, " + str);
+	}
+}
+
+package junz.designPattern.observerPattern.upgrade;
+
+import java.util.Observable;
+import java.util.Observer;
+
+public class WangSi implements Observer{
+
+	//
+	@Override
+	public void update(Observable observable, Object obj) {
+		System.out.println("Wangsi report.");
+		this.rreportToQSH(obj.toString());
+		System.out.println("over.");
+	}
+	
+	public void rreportToQSH(String str) {
+		System.out.println("Boss, " + str);
+	}
+}
+
 
 
 
