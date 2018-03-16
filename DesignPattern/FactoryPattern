@@ -1,0 +1,259 @@
+
+
+
+
+
+
+一、定义（Factory Pattern）
+	Define an interface for creating an object, but let subclasses decide which class to instantiate. Factory Method lets a class defer instantiation to subclasses.
+	(定义一个用于创建对象的接口，让子类决定实例化哪一个类。工行方法使一个雷的实例化延迟到其子类。)
+
+
+
+
+二、结构
+1、引入案例：女娲造人
+
+
+2、通用类图
+
+
+3、简单工厂模式（如果只需要一个工厂类，就不需要创建了，使用静态方法即可。）
+
+
+4、升级为多个工厂类
+
+5、替代单例模式
+
+
+6、延迟初始化
+
+
+
+三、优缺点
+1、优点
+1）良好的封装性。代码结构清晰。
+2）扩展性良好，很便捷。（只需增加一个concreteSubjcet 和 调用时调用新的子类即可）
+3）屏蔽产品类。（调用者只需要关系产品的接口。产品类的实例化有工厂类负责。）
+4）工厂方法模式是典型的解耦框架。
+
+2、缺点
+
+
+
+
+四、关注点
+
+1、适用场景
+1）工厂方法模式 是 new 一个对象的替代品。
+ -- 所有生成对象的地方都可以使用，但需要考虑是否要增加一个工厂类进行管理，增加代码复杂度
+2）需要灵活的、可扩展的框架时。
+3）该模式可以用在异构项目中。（工厂模式降低与外围系统的耦合，统一管理）
+4）可以使用在测试驱动开发的框架下。
+
+
+2、扩展
+1）缩小为简单工厂模式
+	如果只需要一个工厂类，就不需要创建了，使用静态方法即可。
+	【优点】
+		简单、实用
+	【缺点】
+		-- 工厂类的扩展比较困难
+		-- 不符合开闭原则
+2）升级为多个工厂类（符合单一职责原则）
+	--当项目比较复杂时，经常会遇到初始一个对象很耗费精力的情况。所有的产品类都放到一个工厂方法中进行初始化会是代码结构不清晰。
+	因而需要为每个产品类定义创造者，即定义多个类别的工厂，由调用者自己去选择与哪个工厂方法联系。
+	【优点】创建类的职责清晰，且结构简单。
+	【缺点】给可扩展性和可维护性带来影响。
+	【建议】一般采用多工厂方法时，再增加一个协调类，避免调用者与各个子工厂交流，协调类的作用就是封装子工厂类，对高层提供统一的访问接口。
+
+3）替代单例模式
+	singleton定义一个private 的无参构造器，目的是不允许通过new 方式创建一个对象。
+	工厂方法创建单例，通过反射的方式。
+	【好处】框架可以扩展。
+	【扩展】在一个项目中产生一个单例构造器，所有需要产生单例的类都要遵循一定的规则（构造方法为private），然后通过扩展该框架，只要输入一个类型就可以获得唯一的一个实例。
+	
+
+4）延迟初始化
+
+
+
+3、注意事项
+
+
+4、对设计原则的遵守和破坏
+1）符合迪米特 法则，不需要的就不去交流
+2）符合依赖倒置原则，只依赖产品类的抽象
+3）符合里氏替换原则，可以使用产品子类替换产品父类
+
+
+
+五、代码 code
+(一)normal
+1-interface
+package junz.designPattern.FactoryPattern;
+
+public interface Human {
+	//color of skin
+	public void getColor();
+	//say
+	public void say();
+}
+
+2- abstract factory
+package junz.designPattern.FactoryPattern;
+
+/**
+ * 此处使用了泛型，目的在于对输出参数进行限制
+ * 1-必须是 class 类型
+ * 2-必须是 Human 的实现类
+ * @author junz
+ *
+ */
+public abstract class AbstractHumanFactory {
+	public abstract <T extends Human> T createHuman(Class<T> c);
+}
+
+3- factory relization
+package junz.designPattern.FactoryPattern;
+
+public class HumanFactory extends AbstractHumanFactory{
+
+	@Override
+	public <T extends Human> T createHuman(Class<T> c) {
+		//declare human
+		Human human = null;
+		try{
+			//product a kind of human
+			human = (Human) Class.forName(c.getName()).newInstance();
+		}catch(Exception e) {
+			System.out.println("failed to product the human.");
+		}
+		
+		return (T) human;
+	}
+}
+
+4-human relization
+package junz.designPattern.FactoryPattern;
+
+public class BlackHuman implements Human{
+
+	@Override
+	public void getColor() {
+		System.out.println(" Black! ");
+	}
+
+	@Override
+	public void say() {
+		System.out.println("blackman language.");
+	}
+
+}
+
+package junz.designPattern.FactoryPattern;
+
+public class WhiteHuman implements Human{
+
+	@Override
+	public void getColor() {
+		System.out.println(" White! ");
+	}
+
+	@Override
+	public void say() {
+		System.out.println("Whiteman language.");
+	}
+
+}
+
+package junz.designPattern.FactoryPattern;
+
+public class YellowHuman implements Human{
+
+	@Override
+	public void getColor() {
+		System.out.println(" Yellow! ");
+	}
+
+	@Override
+	public void say() {
+		System.out.println("Yellowman language.");
+	}
+
+}
+
+5- client
+package junz.designPattern.FactoryPattern;
+
+public class NvWa {
+	public static void main(String[] args) {
+		//declare the humanFactory
+		AbstractHumanFactory yinyanglu = new HumanFactory();
+		//product the human
+		System.out.println("the first try: ");
+		Human whiteHuman = yinyanglu.createHuman(WhiteHuman.class);
+		whiteHuman.getColor();
+		whiteHuman.say();
+		//the second try
+		System.out.println("the second try");
+		Human yellowHuman = yinyanglu.createHuman(YellowHuman.class);
+		yellowHuman.getColor();
+		yellowHuman.say();
+		//the third try
+		System.out.println("the third try");
+		Human blackHuman = yinyanglu.createHuman(BlackHuman.class);
+		blackHuman.getColor();
+		blackHuman.say();
+		
+	}
+
+}
+
+
+（二）replaceSingleton
+
+package junz.designPattern.FactoryPattern.replaceSingleton;
+
+public class Singleton {
+	//prohibit to create an object by keyword new
+	private Singleton() {
+		
+	}
+	//
+	public void doSomething(){
+		//business handle
+	}
+}
+
+package junz.designPattern.FactoryPattern.replaceSingleton;
+
+import java.lang.reflect.Constructor;
+
+public class SingletonFactory {
+	//
+	private static Singleton singleton;
+	static{
+		try{
+			Class cl = Class.forName(Singleton.class.getName());
+			//get the constructor without params
+			Constructor constructor = cl.getDeclaredConstructor();
+			//set the constructor without params can be accessed
+			constructor.setAccessible(true);
+			//create an instance
+			singleton = (Singleton) constructor.newInstance();
+		}catch (Exception e) {
+			//handle exception
+			System.out.println("an error occurs.");
+		}
+	}
+	
+	public static Singleton getSingleton() {
+		return singleton;
+	}
+	
+}
+
+
+
+
