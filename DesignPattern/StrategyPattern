@@ -2,6 +2,61 @@
 
 
 
+一、定义
+	策略模式也叫作 政策模式
+	Define a family of algorithms,encapsulate each one, and make them interchangeable
+	(定义一组算法，将每个算法都封装起来，并且使他们之间可以互换)
+
+
+
+
+二、结构
+1、引入：三国演义（刘备江东娶妻被陷，诸葛三锦囊妙计）
+
+
+
+
+2、
+
+
+
+
+三、优缺点
+1、优点
+1）算法可以自由切换
+	多态
+2）避免使用多重条件判断
+	策略家族（即提供的一组策略算法）对外提供的访问接口就是封装类
+	由其他模块决定采用何种策略（即根据特征选择对应的策略）
+3）扩展性良好
+	只需实现接口接口。可插拔操作。
+
+2、缺点
+1）策略类数量增多
+	每一个策略类都是一个类，复用的可能性很小，类数量增多。
+2）所有的策略类都需要对外暴露
+	上层模块必须知道有哪些策略，然后才能决定使用哪一个策略。
+	这与迪米特法则是相违背的（）
+	该缺点可以通过其他模式来修正（如工厂方法模式、代理模式或享元模式），如何修正？
+
+3、扩展
+	--- 策略枚举
+	策略枚举是一个非常优秀和方便的模式、但受枚举类型的限制，每个枚举项都是public、final、static的，扩展性受到了一定的约束。
+	因此，策略枚举一般都担当不经常发生变化的角色。
+
+四、关注点
+
+1、策略模式使用的是面向对象的继承和多态机制
+2、策略模式适用于什么场景？或者说什么情况下考虑适用？
+	1）多个类只有在算法或行为上稍有不同的场景
+	2）算法需要自由切换的场景
+		如、算法的选择是由使用者决定的，或者算法始终在进化、变更。
+	3）需要屏蔽算法规则的场景
+		只需调用，不关系内部逻辑实现。
+		
+3、该缺点可以通过其他模式来修正（如工厂方法模式、代理模式或享元模式），如何修正？
+
+【注】如果系统的一个策略家族的具体策略数量超过4个，则需要考虑适用混合模式。来解决策略类膨胀和对外暴露的问题。
 
 
 
@@ -9,15 +64,7 @@
 
 
 
-
-
-
-
-
-
-
-
-------------normal code demo--------------
+------------abstract model code demo--------------
 1--抽象的策略角色
 public interface Strategy {
     //策略模式的运算法则
@@ -63,6 +110,95 @@ public class Client {
        context.doAnything();
   }
 }
+
+
+六、代码 code
+
+1-interface
+package junz.designPattern.StrategyPattern;
+
+public interface IStrategy {
+	//每个锦囊妙计都有一个可执行的算法
+	public void operate();
+}
+
+2-interface relization
+package junz.designPattern.StrategyPattern;
+
+public class BackDoor implements IStrategy{
+
+	@Override
+	public void operate() {
+		System.out.println("找乔国老帮忙，让吴国太给孙权施加压力");
+	}
+}
+
+package junz.designPattern.StrategyPattern;
+
+public class BlockEnemy implements IStrategy{
+
+	@Override
+	public void operate() {
+		System.out.println("孙夫人断后，挡住追兵！");
+	}
+
+}
+
+package junz.designPattern.StrategyPattern;
+
+public class GivenGreenLight implements IStrategy{
+
+	@Override
+	public void operate() {
+		System.out.println("求吴国太开绿灯，放行！");
+	}
+
+}
+
+3-ensplation class
+package junz.designPattern.StrategyPattern;
+
+public class Context {
+	//构造函数，你要使用哪个妙计
+	private IStrategy strategy;
+	public Context(IStrategy strategy) {
+		this.strategy = strategy;
+	}
+	
+	//妙计操作
+	public void operate() {
+		this.strategy.operate();
+	}
+}
+
+4- client
+package junz.designPattern.StrategyPattern;
+
+public class ZhaoYun {
+	//赵云出场，一句诸葛交代，一次打开妙计
+	public static void main(String[] args) {
+		Context context;
+		//刚刚到吴国的时候拆第一个
+		System.out.println("--刚到吴国，打开第一个妙计--");
+		context = new Context(new BackDoor());//拿到妙计
+		context.operate();
+		System.out.println("\n\n\n");
+		
+		//刘备乐不思蜀了，拆开第二个
+		System.out.println("--刘备乐不思蜀了，拆开第二个--");
+		context = new Context(new GivenGreenLight());
+		context.operate();
+		System.out.println("\n\n\n");
+		
+		//孙权的小兵追了，咋办？拆开第三个
+		System.out.println("--孙权的小兵追了，咋办？拆开第三个--");
+		context = new Context(new BlockEnemy());
+		context.operate();
+		System.out.println("\n\n\n");
+		
+	}
+}
+
 
 
 
