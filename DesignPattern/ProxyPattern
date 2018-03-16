@@ -2,6 +2,101 @@
 
 
 
+代理模式（Proxy Pattern）
+
+1、定义
+	Provide a surrogate or a placehoder for another object to control access it.
+	为其他对象提供一种代理以控制对这个对象的访问。
+	
+【注】委托模式
+	代理模式也叫作 委托模式：是一种基本的设计技巧。
+	许多其他模式，如 状态模式、策略模式、访问者模式 本质上是在更特殊场合采用了委托模式。
+	
+2、结构
+
+结构图示角色
+1）subject 抽象主题角色
+	是一个抽象类或者接口。普通的业务类型定义
+2）realSubject 具体主题角色
+	被委托、被代理角色。是业务逻辑的具体执行者。
+3）Proxy 代理主题角色
+	委托类，代理类。
+	负责对真是角色的应用，把所有抽象主题类定义的方法限制委托给真是主题角色实现，并且在真是主题角色处理完毕前后做预处理和善后工作。
+
+
+3、优缺点
+
+优点：
+	1）职责清晰
+		真实的角色就是实现实际的业务逻辑，不用关心其他非本职责的事务，通过后期代理来完成一件事务。
+	2）高扩展性
+		具体主题角色随时发生变化，但只实现了接口。就可被代理类代理。
+	3）智能化
+		动态代理。
+
+
+4、应用场景
+	1）Spring AOP
+	2) 
+
+
+
+5、关注点
+	1、代理的目的是在目标对象方法的基础上作增强，增强的本质通常是对目标对象的方法进行拦截和过滤。
+	1）代理类可以为真实角色预处理消息、过滤消息、消息转发、事后处理消息等。
+	2）代理类可以代理多个真实角色，并且真是角色之间可以有耦合关系。
+	3）代理类可以实现不同的接口来完成不同的任务。
+
+	2、
+
+
+
+6、代理模式扩展
+
+1）普通代理
+	--结构图
+	
+	【注】
+	1-- 客户端只能访问代理角色，不能访问真实角色。
+	2--该模式下，调用者只知道代理而不用知道真实的角色是谁，屏蔽了真实角色的变更对高层模块的影响。
+	3--实际项目中，一般都是通过约定来禁止new 一个真实的角色。
+	【注2】
+		普通代理的约束问题，尽量通过团队的编程规范类约束，因为每一个主题类是可被重用的和可维护的，使用技术约束的方式对系统维护是一种非常不利的因素。
+
+
+2）强制代理
+	-- 结构图
+	
+	
+	【注1】
+	1--只有通过真实角色指定的代理类才能够访问。（即真实角色管理代理角色。）
+	2--强制代理的概念是从真实角色查找到代理角色，不允许直接访问真实角色，直接访问代理类也不行。只能从真是角色获取指定的代理类的方式来访问。
+	3--高层模块只要调用 getProxy 就可以访问真实角色的所有方法。
+	
+
+3）虚拟代理
+	1--在调用主题的地方进行判断，默认主题对象为 null, 调用时判断，如果为null ,则 new
+	2-- 每次调用的时候才初始化主题对象，可以避免被代理对象较多而引起的初始化缓慢的问题。
+	3--缺点是，需要在每个方法中判断主题对象是否被创建。
+
+
+4）动态代理
+	-- 结构图
+	
+
+	【注1】
+	1--自己手写代理类的方式就是静态代理
+	2--动态代理是在实现阶段不用关心代理谁，而在运行阶段才指定代理哪一个对象。
+
+	【注2】
+	
+	1-- 两条独立发展的线路
+	2--动态代理实现代理的职责，业务逻辑Subject 实现相关的逻辑功能。两者之间没有必然的相互耦合关系。
+	3--通知 Advice 从另一个切面切入，最终在高层模块也就是 Client 进行耦合，完成封装的任务。
+	
+	【注3】
+	
+	1--
 
 
 
@@ -158,4 +253,461 @@ public class Client {
         proxy.doSomething();
     }
 }
+
+
+六、代码 code
+（一）basic
+1-client
+package junz.designPattern.proxyPattern;
+
+public class Client {
+
+	//
+	public static void main(String[] args) {
+		//define a player
+		IGamePlayer player = new GamePlayer("小王");
+		//define a proxyPlayer
+		IGamePlayer proxy = new GamePlayProxy(player);
+		//start the game
+		System.out.println("The start time is 2017-03-09 10:00:00");
+		//login
+		proxy.login("小王", "psw");
+		//kill the monster
+		proxy.killBoss();
+		//upgrade
+		proxy.upgrade();
+		System.out.println("The end time is 2017-03-09 14:00:00");
+		
+	}
+	
+}
+
+2-interface
+package junz.designPattern.proxyPattern;
+
+public interface IGamePlayer {
+
+	//login
+	public void login(String user, String password);
+	
+	//kill the monster
+	public void killBoss();
+	
+	//upgrade
+	public void upgrade();
+}
+
+3-interface relization
+package junz.designPattern.proxyPattern;
+
+public class GamePlayProxy implements IGamePlayer {
+
+	private IGamePlayer gamePlayer = null;
+	//constructor
+	public GamePlayProxy(IGamePlayer _gamePlayer) {
+		this.gamePlayer = _gamePlayer;
+	}
+	
+	@Override
+	public void login(String user, String password) {
+		this.gamePlayer.login(user, password);
+	}
+
+	@Override
+	public void killBoss() {
+		this.gamePlayer.killBoss();
+	}
+
+	@Override
+	public void upgrade() {
+		this.gamePlayer.upgrade();
+	}
+
+}
+
+4-concrete 
+package junz.designPattern.proxyPattern;
+
+public class GamePlayer implements IGamePlayer{
+
+	private String name = "";
+	//constructor
+	public GamePlayer(String _name) {
+		this.name = _name;
+	}
+	
+	@Override
+	public void login(String user, String password) {
+		//something like validating the user and psw is ingored here 
+		System.out.println("loin user is :" + this.name);
+	}
+
+	//kill the monster
+	@Override
+	public void killBoss() {
+		System.out.println(this.name + " is busy in killing the boss.");
+	}
+
+	@Override
+	public void upgrade() {
+		System.out.println(this.name + "upgrade one level!");
+	}
+
+}
+
+
+(二) normal Proxy
+1-client
+package junz.designPattern.proxyPattern.normalProxy;
+
+public class Client {
+
+	//
+	public static void main(String[] args) {
+		//define a proxy
+		IGamePlayer proxy = new GamePlayerProxy("小王");
+		//start the game
+		System.out.println("The start time is 2017-03-09 10:00:00");
+		//login
+		proxy.login("小王", "psw");
+		//kill the monster
+		proxy.killBoss();
+		//upgrade
+		proxy.upgrade();
+		System.out.println("The end time is 2017-03-09 14:00:00");
+		
+	}
+	
+}
+
+2-interface
+package junz.designPattern.proxyPattern.normalProxy;
+
+public interface IGamePlayer {
+
+	//login
+	public void login(String user, String password);
+	
+	//kill the monster
+	public void killBoss();
+	
+	//upgrade
+	public void upgrade();
+}
+
+3-interface relization
+package junz.designPattern.proxyPattern.normalProxy;
+
+public class GamePlayerProxy implements IGamePlayer {
+
+	private IGamePlayer gamePlayer = null;
+	//constructor
+	public GamePlayerProxy(String name) {
+		try{
+			gamePlayer = new GamePlayer(this, name);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void login(String user, String password) {
+		this.gamePlayer.login(user, password);
+	}
+
+	@Override
+	public void killBoss() {
+		this.gamePlayer.killBoss();
+	}
+
+	@Override
+	public void upgrade() {
+		this.gamePlayer.upgrade();
+	}
+}
+
+4-concrete
+package junz.designPattern.proxyPattern.normalProxy;
+
+public class GamePlayer implements IGamePlayer{
+
+	private String name = "";
+	private IGamePlayer proxy = null;
+	
+	//constructor
+	public GamePlayer(IGamePlayer _gamePlayer, String _name) throws Exception{
+		if(_gamePlayer == null){
+			throw new Exception("Cannot create the real role.");
+		}else{
+			this.name = _name;
+		}
+	}
+	
+	@Override
+	public void login(String user, String password) {
+		//something like validating the user and psw is ingored here 
+		System.out.println("loin user is :" + this.name);
+		
+	}
+
+	//kill the monster
+	@Override
+	public void killBoss() {
+		System.out.println(this.name + " is busy in killing the boss.");
+	}
+
+	@Override
+	public void upgrade() {
+		System.out.println(this.name + "upgrade one level!");
+	}
+}
+
+
+
+(三)force proxy
+1-client
+package junz.designPattern.proxyPattern.forceProxy;
+
+public class Client {
+
+	//
+	public static void main(String[] args) {
+		//define a player
+		IGamePlayer player = new GamePlayer("小王");
+		//define a proxyPlayer
+		IGamePlayer proxy = player.getProxy();
+		//start the game
+		System.out.println("The start time is 2017-03-09 10:00:00");
+		//login
+		proxy.login("小王", "psw");
+		//kill the monster
+		proxy.killBoss();
+		//upgrade
+		proxy.upgrade();
+		System.out.println("The end time is 2017-03-09 14:00:00");
+		
+	}
+	
+}
+
+2-interface
+package junz.designPattern.proxyPattern.forceProxy;
+
+public interface IGamePlayer {
+
+	//login
+	public void login(String user, String password);
+	
+	//kill the monster
+	public void killBoss();
+	
+	//upgrade
+	public void upgrade();
+	
+	//proxy
+	public IGamePlayer getProxy();
+}
+
+3-interface relization
+package junz.designPattern.proxyPattern.forceProxy;
+
+public class GamePlayerProxy implements IGamePlayer {
+
+	private IGamePlayer gamePlayer = null;
+	//constructor
+	public GamePlayerProxy(IGamePlayer _gamePlayer) {
+		this.gamePlayer = _gamePlayer;
+	}
+	
+	@Override
+	public void login(String user, String password) {
+		this.gamePlayer.login(user, password);
+	}
+
+	@Override
+	public void killBoss() {
+		this.gamePlayer.killBoss();
+	}
+
+	@Override
+	public void upgrade() {
+		this.gamePlayer.upgrade();
+	}
+	
+	//the proxy of proxy
+	public IGamePlayer getProxy(){
+		return this;
+	}
+
+}
+
+4-concrete
+package junz.designPattern.proxyPattern.forceProxy;
+
+public class GamePlayer implements IGamePlayer{
+
+	private String name = "";
+	private IGamePlayer proxy = null;
+	
+	//constructor
+	public GamePlayer(String _name) {
+		this.name = _name;
+	}
+	
+	@Override
+	public void login(String user, String password) {
+		//something like validating the user and psw is ingored here 
+		if(this.isProxy()){
+			System.out.println("loin user is :" + this.name);
+		}else {
+			System.out.println(" Please use the pointed proxy to visit.");
+		}
+		
+	}
+
+	//kill the monster
+	@Override
+	public void killBoss() {
+		if(this.isProxy()){
+			System.out.println(this.name + " is busy in killing the boss.");
+		}else {
+			System.out.println(" Please use the pointed proxy to visit.");
+		}
+	}
+
+	@Override
+	public void upgrade() {
+		if(this.isProxy()){
+			System.out.println(this.name + "upgrade one level!");
+		}else {
+			System.out.println(" Please use the pointed proxy to visit.");
+		}
+	}
+
+	//find itself's proxy
+	@Override
+	public IGamePlayer getProxy() {
+		this.proxy = new GamePlayerProxy(this);
+		return this.proxy;
+	}
+	
+	//check the proxy whether or not be visited
+	private boolean isProxy() {
+		if(this.proxy == null) {
+			return false;
+		}else {
+			return true;
+		}
+	}
+
+}
+
+
+（四）dynamic proxy
+1-client
+package junz.designPattern.proxyPattern.dynamicProxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
+public class Client {
+	
+	//
+	public static void main(String[] args) {
+		//define a player
+		IGamePlayer player = new GamePlayer("小王");
+		//define a handler
+		InvocationHandler handler = new GamePlayIH(player);
+		//start the game
+		System.out.println("The start time is 2017-03-09 10:00:00");
+		//get the classLoader of the class
+		ClassLoader cl = handler.getClass().getClassLoader();
+		//produce a proxy dynamicly
+		IGamePlayer proxy = (IGamePlayer)Proxy.newProxyInstance(cl, new Class[]{IGamePlayer.class}, handler);
+		//login
+		proxy.login("小王", "psw");
+		//kill the monster
+		proxy.killBoss();
+		//upgrade
+		proxy.upgrade();
+		System.out.println("The end time is 2017-03-09 14:00:00");
+	}
+}
+
+2-interface
+package junz.designPattern.proxyPattern.dynamicProxy;
+
+public interface IGamePlayer {
+
+	//login
+	public void login(String user, String password);
+	
+	//kill the monster
+	public void killBoss();
+	
+	//upgrade
+	public void upgrade();
+}
+
+3-
+package junz.designPattern.proxyPattern.dynamicProxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+
+public class GamePlayIH implements InvocationHandler {
+	//the class proxy
+	Class cls = null;
+	//the Object proxy
+	Object obj = null;
+	//what to proxy
+	public GamePlayIH(Object _obj){
+		this.obj = _obj;
+	}
+	
+	//invoke the proxy method
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		Object result = method.invoke(this.obj, args);
+		//add a login validate to check if somebody login my account
+		if(method.getName().equalsIgnoreCase("login")){
+			System.out.println("somebody login my account.");
+		}
+		
+		return result;
+	}
+	
+}
+
+4-concrete
+package junz.designPattern.proxyPattern.dynamicProxy;
+
+public class GamePlayer implements IGamePlayer{
+
+	private String name = "";
+	//constructor
+	public GamePlayer(String _name) {
+		this.name = _name;
+	}
+	
+	@Override
+	public void login(String user, String password) {
+		//something like validating the user and psw is ingored here 
+		System.out.println("loin user is :" + this.name);
+	}
+
+	//kill the monster
+	@Override
+	public void killBoss() {
+		System.out.println(this.name + " is busy in killing the boss.");
+	}
+
+	@Override
+	public void upgrade() {
+		System.out.println(this.name + "upgrade one level!");
+	}
+
+}
+
+
 
