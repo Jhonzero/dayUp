@@ -1,0 +1,284 @@
+
+
+
+一、定义（Temple Method Pattern）
+	Define the skeleton of an alorithm in an operation, deferring some steps to subclasses. Temple Method lets subclasses redefine certain steps of an algorithm without changing the algorithm's structure.
+	(定义一个操作中的算法的框架，而将一些步骤延迟到子类中。使得子类可以不改变一个算法的结构即可重新定义该算法的某些特定步骤。)
+
+
+二、结构
+1、引入案例：悍马模型
+
+2、初步优化
+
+
+3、扩展1
+
+
+
+
+三、优缺点
+1、优点
+	1）封装不可变部分，扩展可变部分
+	2）提取公共部分代码，便于维护
+	3）行为由父类控制，子类实现
+
+2、缺点
+	1）通常的设计习惯为，抽象类声明最抽象、一般的事物属性和方法，实现类实现具体的属性和方法。
+	模板方法模式颠倒了，子类执行结果影响了父类的结果。（思考下！！）
+
+
+四、关注点
+
+1、适用场景
+	1）多个子类有公有的方法，并且逻辑基本相同时
+	2）重要、复杂的算法，可以把核心算法设计为模板犯法，周边细节功能由各个子类实现。
+	3）重构时，模板方法模式是很常用的模式，把相同的代码抽取到父类中，然后通过钩子函数约束其行为
+【注1】什么是钩子函数？-- isAlarm方法的返回值影响了模板方法的执行结果，这儿方法就叫做钩子方法。
+	（子类的方法返回值决定公共部分的执行结果。）
+
+
+2、扩展
+
+
+
+3、注意事项
+【注】关于父类调用子类的行为，有以下方式
+	1）把子类传递到父类的有参构造中，然后调用
+	2）使用反射的方式调用
+	3）父类调用子类的今天方法
+【注2】项目开发中，以上方式是不允许的，不允许父类调用子类。（那为啥还要继承呢？？）
+【注3】一般的解决办法是--模板方法（换个角度理解下）
+	父类建立框架，子类在重写了父类部分的方法后，在调用从父类继承的方法，产生不同的结果！
+
+4、对设计原则的遵守和破坏
+	--符合迪米特法则
+
+5、特点
+	设计很简单，仅仅使用了Java 的继承机制。
+	【注1】抽象类（模板）也叫作抽象模板，分为两类
+	1）基本方法
+		也叫基本操作，是由子类实现的方法（抽象的），并在模板方法中被调用。
+	2）模板方法
+		可以有一个或几个，一般是一个具体方法（非抽象，无需子类重写），也就是一个框架，实现对基本方法的调度，完成固定的逻辑。
+	-- 具体模板，即抽象模板的实现类，实现其定义的抽象方法的实现。
+	【注2】为了防止恶意的操作，一般的模板方法都加上final 关键字，不允许被覆写。
+	【注3】抽象模板中的基本方法尽量设计为 protected 类型，符合迪米特法则，不需要暴露的属性或方法尽量不要设置为 protected类型。实现类不要扩大父类中的访问权限。
+
+
+
+五、code
+（一）normal
+1-
+package junz.designPattern.TempleMethodPattern;
+
+public class Client {
+
+	public static void main(String[] args) {
+		HummerModel h1 = new HummerH1Model();
+		h1.run();
+	}
+}
+
+2-
+package junz.designPattern.TempleMethodPattern;
+
+public class HummerH1Model extends HummerModel{
+
+	//alarm
+	public void alarm() {
+		System.out.println("hummer h1 alarm!");
+	}
+	//engine
+	public void engineBoom() {
+		System.out.println("hummer h1's engineBoom!");
+	}
+	//start
+	public void start() {
+		System.out.println("hummer h1 start!");
+	}
+	//stop
+	public void stop() {
+		System.out.println("hummer h1 stop!");
+	}
+}
+
+3-
+package junz.designPattern.TempleMethodPattern;
+
+public class HummerH2Model extends HummerModel{
+
+	//alarm
+	public void alarm() {
+		System.out.println("hummer h2 alarm!");
+	}
+	//engine
+	public void engineBoom() {
+		System.out.println("hummer h2's engineBoom!");
+	}
+	//start
+	public void start() {
+		System.out.println("hummer h2 start!");
+	}
+	//stop
+	public void stop() {
+		System.out.println("hummer h2 stop!");
+	}
+}
+
+4-
+package junz.designPattern.TempleMethodPattern;
+
+public abstract class HummerModel {
+	/*
+	 * first, this model can start, whether by hand or electric
+	 */
+	public abstract void start();
+	//stop
+	public abstract void stop();
+	//alarm
+	public abstract void alarm();
+	//engine
+	public abstract void engineBoom();
+	//run
+	public void run() {
+		//start firstly
+		this.start();
+		//the engine booms
+		this.engineBoom();
+		//alarm while front has something blocking the road
+		this.alarm();
+		//arrival the destination, stop
+		this.stop();
+	}
+}
+
+
+（二）upgrade
+1-
+package junz.designPattern.TempleMethodPattern.normal;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Client {
+
+	public static void main(String[] args) throws IOException{
+		System.out.println(" hummer h1 model");
+		System.out.println(" hummer h1 need alarm or not? 0-not need, 1-need ");
+		String type = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+		HummerH1Model h1 = new HummerH1Model();
+		if(type.equals("0")) {
+			h1.setAlarm(false);
+		}
+		h1.run();
+		System.out.println("\n hummer h2 model");
+		HummerH2Model h2 = new HummerH2Model();
+		h2.run();
+	}
+}
+
+2-
+package junz.designPattern.TempleMethodPattern.normal;
+
+public class HummerH1Model extends HummerModel{
+
+	private boolean alarmFlag = true;//default true
+	//alarm
+	protected void alarm() {
+		System.out.println("hummer h1 alarm!");
+	}
+	//engine
+	protected void engineBoom() {
+		System.out.println("hummer h1's engineBoom!");
+	}
+	//start
+	protected void start() {
+		System.out.println("hummer h1 start!");
+	}
+	//stop
+	protected void stop() {
+		System.out.println("hummer h1 stop!");
+	}
+	
+	//whether or not alarm
+	protected boolean isAlarm() {
+		return this.alarmFlag;
+	}
+	
+	//the value is set by the user
+	public void setAlarm(boolean isAlarm) {
+		this.alarmFlag = isAlarm;
+	}
+}
+
+3-
+package junz.designPattern.TempleMethodPattern.normal;
+
+public class HummerH2Model extends HummerModel{
+
+	//alarm
+	public void alarm() {
+		System.out.println("hummer h2 alarm!");
+	}
+	//engine
+	public void engineBoom() {
+		System.out.println("hummer h2's engineBoom!");
+	}
+	//start
+	public void start() {
+		System.out.println("hummer h2 start!");
+	}
+	//stop
+	public void stop() {
+		System.out.println("hummer h2 stop!");
+	}
+	//whether or not alarm
+	protected boolean isAlarm() {
+		return false;
+	}
+}
+
+4-
+package junz.designPattern.TempleMethodPattern.normal;
+
+public abstract class HummerModel {
+	/*
+	 * first, this model can start, whether by hand or electric
+	 */
+	protected abstract void start();
+	//stop
+	protected abstract void stop();
+	//alarm
+	protected abstract void alarm();
+	//engine
+	protected abstract void engineBoom();
+	//run
+	final public void run() {
+		//start firstly
+		this.start();
+		//the engine booms
+		this.engineBoom();
+		//alarm while front has something blocking the road
+		if(this.isAlarm()) {
+			this.alarm();
+		}
+		//arrival the destination, stop
+		this.stop();
+	}
+	
+	//the hook function, the alarm default true.
+	protected boolean isAlarm() {
+		return true;
+	}
+}
+
+
+
+
+
+
+
+
+
