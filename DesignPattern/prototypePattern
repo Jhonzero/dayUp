@@ -1,0 +1,130 @@
+
+
+
+
+
+
+
+五、code
+
+（一）normal
+1、Mail
+package junz.designPattern.prototypePattern;
+
+public class Mail {
+
+	//receiver name
+	private String receiver;
+	//mail name
+	private String subject;
+	//
+	private String appellation;
+	//mail context
+	private String context;
+	//tail
+	private String tail;
+	//constructor
+	public Mail(AdvTemplate advTemplate) {
+		this.context = advTemplate.getAdvContext();
+		this.subject = advTemplate.getAdvSubject();
+	}
+	/**
+	 * getters and setters
+	 * @return
+	 */
+	public String getReceiver() {
+		return receiver;
+	}
+	public void setReceiver(String receiver) {
+		this.receiver = receiver;
+	}
+	public String getSubject() {
+		return subject;
+	}
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+	public String getAppellation() {
+		return appellation;
+	}
+	public void setAppellation(String appellation) {
+		this.appellation = appellation;
+	}
+	public String getContext() {
+		return context;
+	}
+	public void setContext(String context) {
+		this.context = context;
+	}
+	public String getTail() {
+		return tail;
+	}
+	public void setTail(String tail) {
+		this.tail = tail;
+	}
+}
+
+2-
+package junz.designPattern.prototypePattern;
+
+public class AdvTemplate {
+
+	//name
+	private String advSubject = "xx bank card";
+	//context
+	private String advContext = "activity, with a high discount";
+	//
+	public String getAdvSubject() {
+		return this.advSubject;
+	}
+	//
+	public String getAdvContext() {
+		return this.advContext;
+	}
+}
+
+3-package junz.designPattern.prototypePattern;
+
+import java.util.Random;
+
+import org.apache.naming.factory.SendMailFactory;
+
+public class Client {
+
+	private static int MAX_COUNT = 6;
+	
+	public static void main(String[] args) {
+		//
+		int i = 0;
+		Mail mail = new Mail(new AdvTemplate());
+		mail.setTail("xx bank copyright.");
+		while(i < MAX_COUNT) {
+			//
+			mail.setAppellation(getRandString(5) + "gentleman/lady");
+			mail.setReceiver(getRandString(5) + "@" +getRandString(8) + ".com");
+			sendMail(mail);
+			i++;
+		}
+		
+	}
+	
+	//
+	public static void sendMail(Mail mail) {
+		System.out.println("title: " + mail.getSubject() + "\treceiver: " + mail.getReceiver() + "\tsend success.");
+	}
+	
+	//
+	public static String getRandString(int maxLength) {
+		String source = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		StringBuffer sb = new StringBuffer();
+		Random rand = new Random();
+		for(int i=0; i<maxLength; i++) {
+			sb.append(source.charAt(rand.nextInt(source.length())));
+		}
+		return sb.toString();
+	}
+}
+
+
+
+
