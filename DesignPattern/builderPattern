@@ -1,0 +1,610 @@
+
+
+
+一、定义（Builder Pattern）
+	Sequence the construction of a complex object from its representation so that the same construction process can create different representations.
+	(将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。)
+
+
+
+
+
+二、结构
+1、引入案例：汽车模型
+
+
+2、增加了建造者的汽车模型
+
+3、完整的车模类图
+
+4、建造者模式通用类图
+
+
+
+三、优缺点
+
+1、优点
+	1）封装性
+	2）建造者独立，容易扩展
+	3）便于控制细节风险
+
+
+四、关注点
+
+1、适用场景
+1）相同的方法，不同的执行顺序，产生不同的事件响应结果时
+2）多个部件或零件，都可以装配到一个对象中，但是产生的运行结果又不相同时。
+3）产品类非常复杂，或者产品类的调用顺序不同产生了不同的效能。
+4）在对象创建过程中会使用系统的一些其他对象，这些对象在产品对象的创建过程中不易得到时。（尽可能的在设计阶段就考虑齐全，此场景只是以一种补救措施）
+
+
+2、扩展
+	前面的扩展中，引入了模板方法模式。
+
+
+3、注意事项
+	建造者模式关注的零件类型和装配工艺（顺序）。（这是与工厂方法模式最大的不同之处）
+	
+	【注】和工厂方法模式的比较
+	1）建造者模式主要的功能是基本方法的调用顺序安排，也就是基本方法已经实现了。即零件的装配。
+	2）工厂方法则重点是创建，创建零件是它的的主要职责，组装顺序则不是它关心的。
+
+4、对设计原则的遵守和破坏
+
+
+
+五、code
+
+（一）normal
+1-package junz.designPattern.builderPattern.normal;
+
+public class BenzModel extends CarModel{
+
+	@Override
+	protected void start() {
+		System.out.println("benz start");
+	}
+
+	@Override
+	protected void stop() {
+		System.out.println("benz stop");
+	}
+
+	@Override
+	protected void alarm() {
+		System.out.println("benz alarm");
+	}
+
+	@Override
+	protected void engineBoom() {
+		System.out.println("benz engine booms");
+	}
+
+}
+
+2-package junz.designPattern.builderPattern.normal;
+
+public class BMWModel extends CarModel{
+
+	@Override
+	protected void start() {
+		System.out.println("bmw start");
+	}
+
+	@Override
+	protected void stop() {
+		System.out.println("bmw stop");
+	}
+
+	@Override
+	protected void alarm() {
+		System.out.println("bmw alarm");
+	}
+
+	@Override
+	protected void engineBoom() {
+		System.out.println("bmw engine booms");
+	}
+
+}
+
+3-
+package junz.designPattern.builderPattern.normal;
+
+import java.util.ArrayList;
+
+public abstract class CarModel {
+
+	//sequence
+	private ArrayList<String> sequence = new ArrayList<String>();
+	/*
+	 * first, this model can start, whether by hand or electric
+	 */
+	protected abstract void start();
+	//stop
+	protected abstract void stop();
+	//alarm
+	protected abstract void alarm();
+	//engine
+	protected abstract void engineBoom();
+	//run
+	final public void run() {
+		int len = this.sequence.size();
+		//iterate
+		for(int i=0; i<len; i++) {
+			String actionName = this.sequence.get(i);
+			if(actionName.equals("start")){
+				this.start();
+			}else if(actionName.equals("stop")){
+				this.stop();
+			}else if(actionName.equals("alarm")){
+				this.alarm();
+			}else if(actionName.equals("engine boom")){
+				this.engineBoom();
+			}
+		}
+	}
+	
+	//set sequence
+	final public void setSequence(ArrayList<String> sequence){
+		this.sequence = sequence;
+	}
+}
+
+4-package junz.designPattern.builderPattern.normal;
+
+import java.util.ArrayList;
+
+public class Client {
+
+	//
+	public static void main(String[] args) {
+		
+		BenzModel benz = new BenzModel();
+		//sequence
+		ArrayList<String> sequence = new ArrayList<String>();
+		sequence.add("engine boom");
+		sequence.add("start");
+		sequence.add("stop");
+		//
+		benz.setSequence(sequence);
+		//run
+		benz.run();
+	}
+}
+
+（二）upgrade
+1-package junz.designPattern.builderPattern.upgrade;
+
+import java.util.ArrayList;
+
+public class BenzBuilder extends CarBuilder{
+
+	private BenzModel benz = new BenzModel();//declare the instance
+	@Override
+	public void setSequence(ArrayList<String> sequence) {
+		this.benz.setSequence(sequence);
+	}
+
+	@Override
+	public CarModel getCarModel() {
+		return this.benz;
+	}
+
+}
+
+2-package junz.designPattern.builderPattern.upgrade;
+
+public class BenzModel extends CarModel{
+
+	@Override
+	protected void start() {
+		System.out.println("benz start");
+	}
+
+	@Override
+	protected void stop() {
+		System.out.println("benz stop");
+	}
+
+	@Override
+	protected void alarm() {
+		System.out.println("benz alarm");
+	}
+
+	@Override
+	protected void engineBoom() {
+		System.out.println("benz engine booms");
+	}
+
+}
+
+3-
+package junz.designPattern.builderPattern.upgrade;
+
+import java.util.ArrayList;
+
+public class BMWBuilder extends CarBuilder{
+
+	private BMWModel bmw = new BMWModel();
+	@Override
+	public void setSequence(ArrayList<String> sequence) {
+		this.bmw.setSequence(sequence);
+	}
+
+	@Override
+	public CarModel getCarModel() {
+		return this.bmw;
+	}
+
+}
+
+4-
+package junz.designPattern.builderPattern.upgrade;
+
+public class BMWModel extends CarModel{
+
+	@Override
+	protected void start() {
+		System.out.println("bmw start");
+	}
+
+	@Override
+	protected void stop() {
+		System.out.println("bmw stop");
+	}
+
+	@Override
+	protected void alarm() {
+		System.out.println("bmw alarm");
+	}
+
+	@Override
+	protected void engineBoom() {
+		System.out.println("bmw engine booms");
+	}
+
+}
+
+5-
+package junz.designPattern.builderPattern.upgrade;
+
+import java.util.ArrayList;
+
+public abstract class CarBuilder {
+
+	//set sequence
+	public abstract void setSequence(ArrayList<String> sequence);
+	//get the CarModel
+	public abstract CarModel getCarModel();
+}
+
+6-
+package junz.designPattern.builderPattern.upgrade;
+
+import java.util.ArrayList;
+
+public abstract class CarModel {
+
+	//sequence
+	private ArrayList<String> sequence = new ArrayList<String>();
+	/*
+	 * first, this model can start, whether by hand or electric
+	 */
+	protected abstract void start();
+	//stop
+	protected abstract void stop();
+	//alarm
+	protected abstract void alarm();
+	//engine
+	protected abstract void engineBoom();
+	//run
+	final public void run() {
+		int len = this.sequence.size();
+		//iterate
+		for(int i=0; i<len; i++) {
+			String actionName = this.sequence.get(i);
+			if(actionName.equals("start")){
+				this.start();
+			}else if(actionName.equals("stop")){
+				this.stop();
+			}else if(actionName.equals("alarm")){
+				this.alarm();
+			}else if(actionName.equals("engine boom")){
+				this.engineBoom();
+			}
+		}
+	}
+	
+	//set sequence
+	final public void setSequence(ArrayList<String> sequence){
+		this.sequence = sequence;
+	}
+}
+
+7-
+package junz.designPattern.builderPattern.upgrade;
+
+import java.util.ArrayList;
+
+public class Client {
+
+	//
+	public static void main(String[] args) {
+		
+		//sequence
+		ArrayList<String> sequence = new ArrayList<String>();
+		sequence.add("engine boom");
+		sequence.add("start");
+		sequence.add("stop");
+		//the benz Builder
+		BenzBuilder benzBuilder = new BenzBuilder();
+		//set sequence
+		benzBuilder.setSequence(sequence);
+		//create the benz
+		BenzModel benz = (BenzModel)benzBuilder.getCarModel();
+		//run
+		benz.run();
+	}
+}
+
+（三）whole
+1-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+import java.util.ArrayList;
+
+public class BenzBuilder extends CarBuilder{
+
+	private BenzModel benz = new BenzModel();//declare the instance
+	@Override
+	public void setSequence(ArrayList<String> sequence) {
+		this.benz.setSequence(sequence);
+	}
+
+	@Override
+	public CarModel getCarModel() {
+		return this.benz;
+	}
+
+}
+
+2-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+public class BenzModel extends CarModel{
+
+	@Override
+	protected void start() {
+		System.out.println("benz start");
+	}
+
+	@Override
+	protected void stop() {
+		System.out.println("benz stop");
+	}
+
+	@Override
+	protected void alarm() {
+		System.out.println("benz alarm");
+	}
+
+	@Override
+	protected void engineBoom() {
+		System.out.println("benz engine booms");
+	}
+
+}
+
+3-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+import java.util.ArrayList;
+
+public class BMWBuilder extends CarBuilder{
+
+	private BMWModel bmw = new BMWModel();
+	@Override
+	public void setSequence(ArrayList<String> sequence) {
+		this.bmw.setSequence(sequence);
+	}
+
+	@Override
+	public CarModel getCarModel() {
+		return this.bmw;
+	}
+
+}
+
+4-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+public class BMWModel extends CarModel{
+
+	@Override
+	protected void start() {
+		System.out.println("bmw start");
+	}
+
+	@Override
+	protected void stop() {
+		System.out.println("bmw stop");
+	}
+
+	@Override
+	protected void alarm() {
+		System.out.println("bmw alarm");
+	}
+
+	@Override
+	protected void engineBoom() {
+		System.out.println("bmw engine booms");
+	}
+
+}
+
+5-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+import java.util.ArrayList;
+
+public abstract class CarBuilder {
+
+	//set sequence
+	public abstract void setSequence(ArrayList<String> sequence);
+	//get the CarModel
+	public abstract CarModel getCarModel();
+}
+
+6-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+import java.util.ArrayList;
+
+public abstract class CarModel {
+
+	//sequence
+	private ArrayList<String> sequence = new ArrayList<String>();
+	/*
+	 * first, this model can start, whether by hand or electric
+	 */
+	protected abstract void start();
+	//stop
+	protected abstract void stop();
+	//alarm
+	protected abstract void alarm();
+	//engine
+	protected abstract void engineBoom();
+	//run
+	final public void run() {
+		int len = this.sequence.size();
+		//iterate
+		for(int i=0; i<len; i++) {
+			String actionName = this.sequence.get(i);
+			if(actionName.equals("start")){
+				this.start();
+			}else if(actionName.equals("stop")){
+				this.stop();
+			}else if(actionName.equals("alarm")){
+				this.alarm();
+			}else if(actionName.equals("engine boom")){
+				this.engineBoom();
+			}
+		}
+	}
+	
+	//set sequence
+	final public void setSequence(ArrayList<String> sequence){
+		this.sequence = sequence;
+	}
+}
+
+7-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+import java.util.ArrayList;
+
+public class Client {
+
+	//
+	public static void main(String[] args) {
+		
+		Director director = new Director();
+		// 1 thousand A BENZ
+		for(int i=0; i<1000; i++){
+			director.getABenzModel();
+		}
+		
+		//1 hundred B BENZ
+		for(int i=0; i<100; i++){
+			director.getBBenzModel();
+		}
+		
+		//ten C BMW
+		for(int i=0; i<10; i++){
+			director.getBBenzModel();
+		}
+		
+	}
+}
+
+8-
+package junz.designPattern.builderPattern.upgradeWhole;
+
+import java.util.ArrayList;
+
+public class Director {
+
+	//
+	private ArrayList<String> sequence = new ArrayList<String>();
+	private BenzBuilder benzBuilder = new BenzBuilder();
+	private BMWBuilder bmwBuilder = new BMWBuilder();
+	/*
+	 * type A benz: 1-start, 2-stop
+	 */
+	public BenzModel getABenzModel() {
+		//clear
+		this.sequence.clear();
+		//set sequence
+		this.sequence.add("start");
+		this.sequence.add("stop");
+		//
+		this.benzBuilder.setSequence(sequence);
+		return (BenzModel)benzBuilder.getCarModel();
+	}
+	
+	/*
+	 * 
+	 */
+	public BenzModel getBBenzModel() {
+		//clear
+		this.sequence.clear();
+		//set sequence
+		this.sequence.add("engine boom");
+		this.sequence.add("stop");
+		this.sequence.add("stop");
+		//
+		this.benzBuilder.setSequence(sequence);
+		return (BenzModel)benzBuilder.getCarModel();
+	}
+	
+	/*
+	 * 
+	 */
+	public BMWModel getCBMWModel() {
+		//clear
+		this.sequence.clear();
+		//set sequence
+		this.sequence.add("alarm");
+		this.sequence.add("start");
+		this.sequence.add("stop");
+		//
+		this.benzBuilder.setSequence(sequence);
+		return (BMWModel)bmwBuilder.getCarModel();
+	}
+	
+	//
+	public BMWModel getDBMWModel() {
+		//clear
+		this.sequence.clear();
+		//set sequence
+		this.sequence.add("start");
+		//
+		this.benzBuilder.setSequence(sequence);
+		return (BMWModel)bmwBuilder.getCarModel();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
