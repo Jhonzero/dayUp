@@ -28,3 +28,43 @@ file://Shay3z002912191/axp/V2R2C1/Trunck/01.Code/02.AppCommonConfig
 
 
 
+
+一、IDE 相关
+1、 Eclipse 
+	 
+	【问题截图】：
+	
+	 
+	【解决】JDK 版本和 IDE 不匹配
+	
+	
+	
+Eclipse  内存问题
+	【问题截图】
+	 
+2、Eclipse 找不到或无法加载主类
+
+	有时候 Eclipse 会发神经，好端端的 project 就这么编译不了了，连 Hello World 都会报“找不到或无法加载主类（Exception in thread "main" java.lang.NoClassDefFoundError:xxx）”的错误，我已经遇到好几次了，以前是懒得深究就直接重建project了，但遇到次数多了必须深究下了，现总结几种解决方案，大家根据自己的情况逐一尝试即可。
+	1、是因为.java文件不在项目的src路径内，也就是说源代码未被eclipse编译，字节码不存在无法运行了，在项目名上右键 -> Builder Path -> Configure Build Path -> 选择Source面板，再点Add Folder, 把源代码所在的包路径的上层目录加进来，而且如果你是把两个类写在一个文件里的话，你在右键选择Run As Java Appication 的时候，要把光标置于包括main方法的类上（相当于指定主类入口）。
+	2、项目的Java Build Path中的Libraries中也许某个jar包是不可用的，显示红色叉叉。这说明系统找不到这个这个jar文件，把这个jar删除或者重新加载进来即可。
+	 
+	3、某些情况下，最快捷的解决办法是，打开带有main函数的类，ctrl +A （全选）---> ctrl +X（剪切）-----> ctrl+S(保存)--->关闭---->再打开--->ctrl +V (粘贴) ---->OK;一句话就是剪切出去 关闭 再粘进来。（相当于让 eclipse 重新编译一下，如果你开启了自动编译的话。）
+	4、最常见的问题应该是下面的情况：package 被当做 folder 来对待了，导致所有的 .java 文件无法被 eclipse 识别，自然也就无法识别 main 函数，也就没法编译运行了，案例截图：
+	
+	此时最快的解决方案是右键源码文件夹选择:
+	src > remove from build path → src > Build Path > Use as Source Folder
+	最后说下 Folder 和 package 的区别：Folder靠"/"来进行上下级划分，package靠“.”来进行上下级划分
+	5、最坏的情况下，估计你得重建 Project。（这是最土但是最有效的解决方案）
+	6、如果上述不行，大家直接在 cmd 下 javac 然后 java 运行试试，如果这都报错，那是你的 jdk 或者 os 环境有问题了。
+
+
+
+3、java.lang.NoClassDefFoundError: org/apache/commons/lang/exception/NestableRuntimeException
+【注】
+1）jar 包依赖问题
+2）
+
+
+
+
+
